@@ -15,21 +15,23 @@ export class RolesService {
     }
 
     async getRoleByValue(value: string) {
-        const role = await this.roleRepository.findOne({where: {value}})
-        return role;
-    }
+      const role = await this.roleRepository.findOne({where: {value}})
+      return role;
+  }  
 
-    //
     async getRoleByID(id: number) {
-        const role = await this.roleRepository.findOne({where: {id}})
-        return role;
+      const role = await this.roleRepository.findOne({
+          where: { id: id },
+          include: { all: true }
+      });
+      return role;
     }
 
     async updateRole(roleId: number, updateDto: UpdateRoleDto) {
         const role = await this.roleRepository.findByPk(roleId);
         if (!role) {
           throw new HttpException(
-            "Такого role не существует",
+            "Такой роли не существует",
             HttpStatus.BAD_REQUEST
           );
         }

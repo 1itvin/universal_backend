@@ -12,22 +12,25 @@ export class RolesController {
         return this.roleService.createRole(dto);
     }
 
-    @Get('/:value')
-    getByValue(@Param('value') value: string) {
-        return this.roleService.getRoleByValue(value);
-    }
-
-    
-    @Get()
-    getByID(@Query('id') id: number) {
-        return this.roleService.getRoleByID(id);
-    }
-    
     @Get()
     getAllRoles() {
         return this.roleService.getAllRoles();
   }
 
+    // @Get('/:value')
+    // getByValue(@Param('value') value: string) {
+    //     return this.roleService.getRoleByValue(value);
+    // }
+
+    // @Get()
+    // getByValue(@Query('value') value: string) {
+    //     return this.roleService.getRoleByValue(value);
+    // }
+
+    @Get('/:id')
+    getRoleByID(@Param('id') id: number) {
+        return this.roleService.getRoleByID(id);
+    }
     
     @Put("/:id")
     update(@Param("id") roleId: number, @Body() updateDto: UpdateRoleDto) {

@@ -31,32 +31,57 @@ export class UsersController {
         return this.usersService.getAllUsers(page, limit);
     }
   
-    //
     @ApiOperation({summary: 'Получить пользователя по ID'})
     @ApiResponse({status: 200, type: User})
-    @Get(':id')
+    @Get('/:id')
     getUserByID(@Param('id') id: number) {
         return this.usersService.getUserByID(id);
-}
+    }
 
-    //
+    // @Get()
+    // getUserByEmail(@Query('email') email: string) {
+    //     return this.usersService.getUserByEmail(email);
+    // }
+
+    // @Get('/:email')
+    // getUserByEmail(@Param('email') email: string) {
+    //     return this.usersService.getUserByEmail(email);
+    // }
 
     @ApiOperation({summary: 'Выдать роль'})
     @ApiResponse({status: 200})
     @Roles("ADMIN")
     @UseGuards(RolesGuard)
-    @Post('/role')
-    addRole(@Body() dto: AddRoleDto) {
-        return this.usersService.addRole(dto);
+    @Post('/give_role/:id')
+    addRole(@Param("id") userId: number, @Body() dto: AddRoleDto) {
+        return this.usersService.giveRole(userId, dto);
+    }
+
+    @ApiOperation({summary: 'Забрать роль'})
+    @ApiResponse({status: 200})
+    @Roles("ADMIN")
+    @UseGuards(RolesGuard)
+    @Post('/take_role/:id')
+    takeRole(@Param("id") userId: number, @Body() dto: AddRoleDto) {
+        return this.usersService.takeRole(userId, dto);
     }
 
     @ApiOperation({summary: 'Забанить пользователя'})
     @ApiResponse({status: 200})
     @Roles("ADMIN")
     @UseGuards(RolesGuard)
-    @Post('/ban')
-    ban(@Body() dto: BanUserDto) {
-        return this.usersService.ban(dto);
+    @Post('/ban/:id')
+    ban(@Param("id") userId: number, @Body() dto: BanUserDto) {
+        return this.usersService.ban(userId, dto);
+    }
+
+    @ApiOperation({summary: 'Разбанить пользователя'})
+    @ApiResponse({status: 200})
+    @Roles("ADMIN")
+    @UseGuards(RolesGuard)
+    @Post('/unban/:id')
+    unban(@Param("id") userId: number) {
+        return this.usersService.unban(userId);
     }
 
     @ApiOperation({ summary: "Удаление пользователя" })

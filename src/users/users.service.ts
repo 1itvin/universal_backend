@@ -28,45 +28,80 @@ export class UsersService {
         include: { all: true },
         offset: offset,
         limit: limit
-    });
+      });
       return users;
-  }
+    }
 
-  //
-  async getUserByID(id: number) {
-    const user = await this.userRepository.findOne({
-        where: { id: id },
-        include: { all: true }
-    });
-    return user;
-}
-
-  //
+    async getUserByID(id: number) {
+      const user = await this.userRepository.findOne({
+          where: { id: id },
+          include: { all: true }
+      });
+      return user;
+    }
     
     async getUserByEmail(email: string) {
         const user = await this.userRepository.findOne({where: {email}, include: {all: true}})
         return user;
     }
 
-    async addRole(dto: AddRoleDto) {
-        const user = await this.userRepository.findByPk(dto.userId);
-        const role = await this.roleService.getRoleByValue(dto.value);
-        if (role && user) {
-            await user.$add('role', role.id);
-            return dto;
-        }
-        throw new HttpException('Пользователь или роль не найдены', HttpStatus.NOT_FOUND);
+    // async addRole(dto: AddRoleDto) {
+    //     const user = await this.userRepository.findByPk(dto.userId);
+    //     const role = await this.roleService.getRoleByValue(dto.value);
+    //     if (role && user) {
+    //         await user.$add('role', role.id);
+    //         return dto;
+    //     }
+    //     throw new HttpException('Пользователь или роль не найдены', HttpStatus.NOT_FOUND);
+    // }
+
+    async giveRole(userId: number, dto: AddRoleDto) {
+      const user = await this.userRepository.findOne({
+        where: { id: userId },
+        include: { all: true }
+      });
+      const role = await this.roleService.getRoleByValue(dto.value);
+      if (role && user) {
+          await user.$add('role', role.id);
+          return { message: "Пользователю успешно дана новая роль" };
+      }
+      throw new HttpException('Пользователь или роль не найдены', HttpStatus.NOT_FOUND);
     }
 
-    async ban(dto: BanUserDto) {
-        const user = await this.userRepository.findByPk(dto.userId);
-        if (!user) {
-            throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
-        }
-        user.banned = true;
-        user.banReason = dto.banReason;
-        await user.save();
-        return user;
+    async takeRole(userId: number, dto: AddRoleDto) {
+      const user = await this.userRepository.findOne({
+        where: { id: userId },
+        include: { all: true }
+      });
+      const role = await this.roleService.getRoleByValue(dto.value);
+      if (role && user) {
+          await user.$remove('role', role.id);
+          await user.save();
+          return { message: "У пользователю успешно удалена роль" };
+      }
+      throw new HttpException('Пользователь или роль не найдены', HttpStatus.NOT_FOUND);
+    }
+
+    async ban(userId: number, dto: BanUserDto) {
+      const user = await this.userRepository.findByPk(userId);
+      if (!user) {
+          throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
+      }
+      user.banned = true;
+      user.banReason = dto.banReason;
+      await user.save();
+      return user;
+    }
+
+    async unban(userId: number) {
+      const user = await this.userRepository.findByPk(userId);
+      if (!user) {
+          throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
+      }
+      user.banned = false;
+      user.banReason = null;
+      await user.save();
+      return user;
     }
 
     async updateUser(userId: number, updateDto: UpdateUserDto) {
@@ -86,7 +121,7 @@ export class UsersService {
     
         user.update(updateDto);
         return user;
-      }
+    }
 
       async deleteUser(userId: number) {
         const candidate = await this.userRepository.findOne({
